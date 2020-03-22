@@ -33,10 +33,17 @@ class People(object):
         self.rate_s = rate_s
 
     def report_status(self):
-        """
-        report the status of the subject people
-            [pid, status, days, ...]
-        """
+        print("Player{} position is ({})".format(self.pid,self.pos))
+        if self.status==0:
+            print("Player{} is currently healthy".format(self.pid)
+        elif self.status==1:
+            print ("Player{} is currently sick".format(self.pid)
+            print("Player has been sick for {} days".format(self.days_sicK)
+        elif self.status ==2:
+            print ("Player{} is currently recovered".format(self.pid)
+        else:
+            print("Player{} is dead".format(self.pid)
+        print("Player {}'s age is {}".format(self.pid,self.age))
         # TODO
 
     def check_status(self):
@@ -45,10 +52,13 @@ class People(object):
         """
         # days_sick should always <= days_rec
         assert self.days_sick <= self.days_rec, "Invalid days being sick {} > {}".format(self.days_sick, self.days_rec)
-        assert self.rate_g >= 0.0, "rate of getting sick cannot be negative!"
+        assert self.rate_g >= 0.0 and self.rate_g<=100, "rate of getting sick cannot be negative or be more than 100%!"
+        assert self.rate_s>=0.0 and self.rate_s<=100, "rate of  staying cannot be negative or be more than 100%!"
+        assert self.rate_d>=0.0 and self.rate_d <=100, " rate of death cannot be a negative or be more than 100%!"
+        assert self.days_sick>=0, "days sick cannot be negative!"
+        assert self.days_rec>=0 and self.days_rec>=self.days_sick, "recovery days cannot be negative!"
         if self.status == 0:
             assert self.days_sick == 0, "I'm healthy!"
-        # TODO
 
 
     def walk(self):
