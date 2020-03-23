@@ -21,26 +21,23 @@ class Grid(object):
                                days_sick=0, rate_g=0.2, rate_d=0.0, rate_s=0.0) 
                         for i in range(n)]
             self.all_p.extend(cur_list)
+        self.to_pos_array()
 
     def to_pos_array(self):
-        self.x = [p.pos[0] for p in self.all_p]
-        self.y = [p.pos[1] for p in self.all_p]
-        self.s = [p.status for p in self.all_p]
+        self.x = np.array([p.pos[0] for p in self.all_p]).reshape(1,-1)
+        self.y = np.array([p.pos[1] for p in self.all_p]).reshape(1,-1)
+        self.s = np.array([p.status for p in self.all_p]).reshape(1,-1)
 
     def update(self):
         self.all_p = [p.walk() for p in self.all_p]
 
     def plot_current(self):
-        fig = plt.figure()
-        plt.xlim(-1, 100)
-        plt.ylim(-1, 100)
-#        ims = []
-#        for step in np.arange(5):
-#            ims.append(plt.scatter(self.x, self.y, c=self.s))
-        plt.scatter(self.x, self.y, c=self.s)
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.set(xlim=(-1, 100), ylim=(-1, 100))
+        scat = ax.scatter(self.x, self.y, c=self.s)
         plt.show()
 
 grid = Grid(100, [100,10,10,10])
-print(grid.all_p)
-grid.to_pos_array()
+#print(grid.all_p)
+#grid.to_pos_array()
 grid.plot_current()
