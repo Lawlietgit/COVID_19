@@ -14,6 +14,8 @@ class Grid(object):
         """
         self.size = size
         self.all_p = []
+        self.total_p = sum(n_p)
+        self.steps = 1000
         # [4, 5, 2, 3]
         # [0, 1, 2, 3]
         # [0, 1, 2, 3, 4] + 4
@@ -24,6 +26,64 @@ class Grid(object):
                         for i in range(n)]
             self.all_p.extend(cur_list)
         self.to_pos_array()
+        self.stream = self.data_stream()
+        # Setup the figure and axes...
+        self.fig, self.ax = plt.subplots()
+        # Then setup FuncAnimation.
+        self.ani = anime.FuncAnimation(self.fig, self.update, interval=200, 
+                                       init_func=self.setup_plot, blit=True)
+
+    def setup_plot(self):
+        """Initial drawing of the scatter plot."""
+        x, y, s, c = next(self.stream)
+        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True, cmap='gist_rainbow')
+        classes = ['healthy', 'sick', 'recovered', 'died']
+        self.ax.axis([0, self.size, 0, self.size])
+        self.ax.legend(handles=self.scat.legend_elements()[0], labels=classes,
+                       bbox_to_anchor=(-0.08, 0.85, 1.0, 0.2),
+                       fancybox = True, ncol=4,
+                       labelspacing=0.1,
+                       borderpad=0.1,
+                       shadow=True)
+        self.ax.set_title("COVID-19 MC", pad=15)
+
+
+        # For FuncAnimation's sake, we need to return the artist we'll be using
+        # Note that it expects a sequence of artists, thus the trailing comma.
+        return self.scat,
+
+    def data_stream(self):
+        """Generate a random walk (brownian motion). Data is scaled to produce
+        a soft "flickering" effect."""
+        for i in range(self.steps):
+            self.update_allp()
+            data = np.zeros((4, self.total_p))
+            data[0, :] = self.x
+            data[1, :] = self.y
+            data[2, :] = 3.0
+            data[3, :] = self.s
+            yield data
+
+    def update(self, i):
+        """Update the scatter plot."""
+        data = next(self.stream)
+
+        # Set x and y data...
+        self.scat.set_offsets(data[:2, :].T)
+        # Set sizes...
+        self.scat._sizes = data[2]
+        # Set colors..
+        self.scat.set_array(data[3])
+        if i >= self.steps-2:
+            self.ani.event_source.stop()
+
+
+        # We need to return the updated artist for FuncAnimation to draw..
+        # Note that it expects a sequence of artists, thus the trailing comma.
+        return self.scat,
+
+    def show(self):
+        plt.show()
 
     def to_pos_array(self):
         self.x = np.array([p.pos[0] for p in self.all_p]).reshape(1,-1)
@@ -46,7 +106,7 @@ class Grid(object):
         for p in check_list:
             p.report_status()
 
-    def update(self):
+    def update_allp(self):
         self.random_check()
         current_sick_coord = self.get_sick_coord()
         for p in self.all_p:
@@ -57,13 +117,16 @@ class Grid(object):
             p.update_status()
         self.random_check()
         self.to_pos_array()
+        print(self.s)
+        for p in self.all_p:
+            print(p.pid, p.status)
 
     def run(self, steps=100):
         for step in range(steps):
             print("="*60)
             print("Now on step {}/{} ...".format(step+1, steps))
             print("="*60)
-            self.update()
+            self.update_allp()
             # self.report_status
 
     def plot_current(self):
@@ -72,7 +135,6 @@ class Grid(object):
         scat = ax.scatter(self.x, self.y, c=self.s)
         plt.show()
 
-    #TODO
     def report_status(self):
         # 11 sick , ... recovered
         # there are # sick places len(get_sick_coord)
@@ -80,6 +142,8 @@ class Grid(object):
         print("Now on step {}/{} ...".format(step+1, steps))
         print("="*60)
 
-grid = Grid(10, [10, 10, 0, 0])
-grid.run(100)
+grid = Grid(100, [1800, 5, 1, 1])
+# grid.run(100)
+grid.show()
+
 # grid.plot_current()
