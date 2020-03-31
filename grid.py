@@ -15,7 +15,7 @@ class Grid(object):
         self.size = size
         self.all_p = []
         self.total_p = sum(n_p) # sum of the n_p list, indicating total number of ppl
-        self.steps = 1000 # this is the total number of steps you simulate
+        self.steps = 500 # this is the total number of steps you simulate
         for status, n in enumerate(n_p):
             gc = 0 if status == 0 else n_p[status-1]
             cur_list = [People(i+gc, np.random.randint(self.size, size=2),
@@ -27,14 +27,14 @@ class Grid(object):
         # Setup the figure and axes...
         self.fig, self.ax = plt.subplots()
         # Then setup FuncAnimation.
-        self.ani = anime.FuncAnimation(self.fig, self.update, interval=200,
+        self.ani = anime.FuncAnimation(self.fig, self.update, interval=40,
                                        # interval it is the time between your snapshots in ms
                                        init_func=self.setup_plot, blit=True)
 
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
         x, y, s, c = next(self.stream)
-        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True, cmap='gist_rainbow')
+        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True, cmap='viridis')
         classes = ['healthy', 'sick', 'recovered', 'died']
         self.ax.axis([0, self.size, 0, self.size])
         self.ax.legend(handles=self.scat.legend_elements()[0], labels=classes,
