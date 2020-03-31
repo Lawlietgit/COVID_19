@@ -68,7 +68,6 @@ class People(object):
         assert self.rate_d >= 0.0 and self.rate_d <= 1, "rate of death cannot be a negative or be more than 1"
         assert self.days_sick >= 0, "days sick cannot be negative!"
         assert self.days_rec >= 0, "recovery days cannot be negative!"
-        # TODO
         # assert ppl is inside the box
         if self.status == 0:
             assert self.days_sick == 0, "I'm healthy!"
@@ -100,7 +99,7 @@ class People(object):
             if r > self.rate_s:
                 r_dir = np.random.random()
                 if r_dir < 0.125: # up
-                    step = np.array([0, 1])
+                    step = np.array([0,1])
                 elif r_dir < 0.25: # left, up
                     step = np.array([-1,1])
                 elif r_dir < 0.375: # left
@@ -124,6 +123,7 @@ class People(object):
                     self.pos[1] += self.limit
                 if self.pos[1] > self.limit - 1:
                     self.pos[1] -= self.limit
+
 
     def update_status(self):
         self.check_status()
