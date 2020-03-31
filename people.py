@@ -6,8 +6,8 @@ class People(object):
     def __init__(self, pid, pos, move_limit, 
                  age=0, status=0,
                  days_rec=30, days_sick=0,
-                 rate_g=0.2,
-                 rate_d=0.1,
+                 rate_g=1.0,
+                 rate_d=0.02,
                  rate_s=0.0, 
                  sick_near_by=False):
         """
@@ -116,13 +116,13 @@ class People(object):
                     step = np.array([1,1])
                 self.pos += step
                 if self.pos[0] < 0:
-                    self.pos[0] += 2
-                if self.pos[0] >= self.limit:
-                    self.pos[0] -= 2
+                    self.pos[0] += self.limit
+                if self.pos[0] > self.limit - 1:
+                    self.pos[0] -= self.limit
                 if self.pos[1] < 0:
-                    self.pos[1] += 2
-                if self.pos[1] >= self.limit:
-                    self.pos[1] -= 2
+                    self.pos[1] += self.limit
+                if self.pos[1] > self.limit - 1:
+                    self.pos[1] -= self.limit
 
 
     def update_status(self):
