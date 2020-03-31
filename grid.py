@@ -59,12 +59,12 @@ class Grid(object):
         self.to_pos_array()
 
     def run(self, steps=100):
-            for p in range(steps):
-                print("="*60)
-                print("Now on step {}/{} ...".format(step+1, steps))
-                print("="*60)
-                self.update()
-            # self.report_status
+        for p in range(steps):
+            print("="*60)
+            print("Now on step {}/{} ...".format(step+1, steps))
+            print("="*60)
+            self.update()
+        # self.report_status
 
     def plot_current(self):
         fig, ax = plt.subplots(figsize=(5, 5))

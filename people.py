@@ -99,7 +99,7 @@ class People(object):
             if r > self.rate_s:
                 r_dir = np.random.random()
                 if r_dir < 0.125: # up
-                    step = np.array([1,0])
+                    step = np.array([0,1])
                 elif r_dir < 0.25: # left, up
                     step = np.array([-1,1])
                 elif r_dir < 0.375: # left
