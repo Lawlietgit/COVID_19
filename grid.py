@@ -59,23 +59,26 @@ class Grid(object):
         self.to_pos_array()
 
     def run(self, steps=100):
-        for step in range(steps):
-            print("="*60)
-            print("Now on step {}/{} ...".format(step+1, steps))
-            print("="*60)
-            self.update()
+            for p in range(steps):
+                print("="*60)
+                print("Now on step {}/{} ...".format(step+1, steps))
+                print("="*60)
+                self.update()
             # self.report_status
 
     def plot_current(self):
         fig, ax = plt.subplots(figsize=(5, 5))
-        ax.set(xlim=(-1, 100), ylim=(-1, 100))
+        ax.set(xlim=(0, 100), ylim=(0, 100))
         scat = ax.scatter(self.x, self.y, c=self.s)
         plt.show()
 
-    #TODO
     def report_status(self):
+        a=0
+        for p in range(p.all):
+            if p.status==1:
+                a+=1
         # 11 sick , ... recovered
-        # there are # sick places len(get_sick_coord)
+        print("there are {} sick people".format(a))
         print("="*60)
         print("Now on step {}/{} ...".format(step+1, steps))
         print("="*60)

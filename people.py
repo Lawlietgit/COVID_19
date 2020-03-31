@@ -68,7 +68,6 @@ class People(object):
         assert self.rate_d >= 0.0 and self.rate_d <= 1, "rate of death cannot be a negative or be more than 1"
         assert self.days_sick >= 0, "days sick cannot be negative!"
         assert self.days_rec >= 0, "recovery days cannot be negative!"
-        # TODO
         # assert ppl is inside the box
         if self.status == 0:
             assert self.days_sick == 0, "I'm healthy!"
@@ -124,6 +123,7 @@ class People(object):
                     self.pos[1] += 2
                 if self.pos[1] >= self.limit:
                     self.pos[1] -= 2
+
 
     def update_status(self):
         self.check_status()
