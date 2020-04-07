@@ -7,7 +7,7 @@ import sys
 np.random.seed(42)
 
 class Grid(object):
-    def __init__(self, size, n_p):
+    def __init__(self, size, n_p, steps=1000):
         """
         :param size: int, size of the grid
         :param n_p: (4,) numpy array, [# of ppl of each status]
@@ -15,7 +15,7 @@ class Grid(object):
         self.size = size
         self.all_p = []
         self.total_p = sum(n_p) # sum of the n_p list, indicating total number of ppl
-        self.steps = 1000 # this is the total number of steps you simulate
+        self.steps = steps # this is the total number of steps you simulate
         for status, n in enumerate(n_p):
             gc = 0 if status == 0 else n_p[status-1]
             cur_list = [People(i+gc, np.random.randint(self.size, size=2),
@@ -30,6 +30,7 @@ class Grid(object):
         self.ani = anime.FuncAnimation(self.fig, self.update, interval=200,
                                        # interval it is the time between your snapshots in ms
                                        init_func=self.setup_plot, blit=True)
+        self.stop = False
 
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
@@ -45,7 +46,6 @@ class Grid(object):
                        shadow=True)
         self.ax.set_title("COVID-19 MC", pad=15)
 
-
         # For FuncAnimation's sake, we need to return the artist we'll be using
         # Note that it expects a sequence of artists, thus the trailing comma.
         return self.scat,
@@ -60,7 +60,11 @@ class Grid(object):
             data[1, :] = self.y
             data[2, :] = 3.0
             data[3, :] = self.s
-            yield data
+            if self.stop:
+                sys.exit()
+            else:
+                yield data
+
 
     def update(self, i):
         """Update the scatter plot."""
@@ -72,7 +76,7 @@ class Grid(object):
         self.scat._sizes = data[2]
         # Set colors..
         self.scat.set_array(data[3])
-        if i >= self.steps-2:
+        if i >= self.steps-2 or self.stop:
             self.ani.event_source.stop()
 
         # We need to return the updated artist for FuncAnimation to draw..
@@ -103,7 +107,6 @@ class Grid(object):
             p.report_status()
 
     def update_allp(self, step):
-        # self.random_check()
         current_sick_coord = self.get_sick_coord()
         for p in self.all_p:
             if tuple(p.pos) in current_sick_coord:
@@ -111,7 +114,7 @@ class Grid(object):
             else:
                 p.snb = False
             p.update_status()
-        self.random_check()
+        # self.random_check()
         self.to_pos_array()
         self.report_status(step)
 
@@ -145,11 +148,14 @@ class Grid(object):
         print("Now on step {}/{} ...".format(step+1, self.steps))
         print("there are {} healthy people".format(counts[0]))
         print("there are {} sick people".format(counts[1]))
+        if counts[1] == 0:
+            self.stop = True
+            print("No sick people left, program should exit now ...")
         print("there are {} recovered people".format(counts[2]))
         print("there are {} died people".format(counts[3]))
         print("="*60)
 
-grid = Grid(100, [1800, 5, 1, 1])
+grid = Grid(100, [1800, 100, 1, 1])
 # grid.run(100)
 grid.show()
 
