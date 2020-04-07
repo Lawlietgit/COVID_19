@@ -7,7 +7,7 @@ import sys
 np.random.seed(42)
 
 class Grid(object):
-    def __init__(self, size, n_p, steps=1000):
+    def __init__(self, size, n_p, steps=100):
         """
         :param size: int, size of the grid
         :param n_p: (4,) numpy array, [# of ppl of each status]
@@ -23,67 +23,44 @@ class Grid(object):
                         for i in range(n)]
             self.all_p.extend(cur_list)
         self.to_pos_array()
-        self.stream = self.data_stream()
         # Setup the figure and axes...
-        self.fig, self.ax = plt.subplots()
+        self.ims = []
+        self.fig, (self.ax, self.ax2) = plt.subplots(1,2)
+        self.sick_count = []
+        self.dead_count = []
         # Then setup FuncAnimation.
-        self.ani = anime.FuncAnimation(self.fig, self.update, interval=200,
+#        self.ani = anime.FuncAnimation(self.fig, self.update, interval=200,
                                        # interval it is the time between your snapshots in ms
-                                       init_func=self.setup_plot, blit=True)
+#                                       init_func=self.setup_plot, blit=True)
         self.stop = False
 
-    def setup_plot(self):
+    def get_anime(self):
         """Initial drawing of the scatter plot."""
-        x, y, s, c = next(self.stream)
-        self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True, cmap='gist_rainbow')
-        classes = ['healthy', 'sick', 'recovered', 'died']
-        self.ax.axis([0, self.size, 0, self.size])
-        self.ax.legend(handles=self.scat.legend_elements()[0], labels=classes,
-                       bbox_to_anchor=(-0.08, 0.85, 1.0, 0.2),
-                       fancybox = True, ncol=4,
-                       labelspacing=0.1,
-                       borderpad=0.1,
-                       shadow=True)
-        self.ax.set_title("COVID-19 MC", pad=15)
+        for step in range(self.steps):
+            self.update_allp(step)
+            self.scat = self.ax.scatter(self.x, self.y, c=self.s, s=3.0, animated=True, cmap='gist_rainbow')
+            classes = ['healthy', 'sick', 'recovered', 'died']
+            self.ax.axis([0, self.size, 0, self.size])
+            self.ax.legend(handles=self.scat.legend_elements()[0], labels=classes,
+                        bbox_to_anchor=(-0.08, 0.85, 1.0, 0.2),
+                        fancybox = True, ncol=2,
+                        labelspacing=0.1,
+                        borderpad=0.1,
+                        shadow=True)
+            self.ax.set_title("COVID-19 MC", pad=15)
+            self.plot1, = self.ax2.plot(self.sick_count, 'b')
+            self.plot2, = self.ax2.plot(self.dead_count, 'k')
+            self.ax2.axis([0, self.steps, 0, self.total_p])
 
-        # For FuncAnimation's sake, we need to return the artist we'll be using
-        # Note that it expects a sequence of artists, thus the trailing comma.
-        return self.scat,
-
-    def data_stream(self):
-        """Generate a random walk (brownian motion). Data is scaled to produce
-        a soft "flickering" effect."""
-        for i in range(self.steps):
-            self.update_allp(i)
-            data = np.zeros((4, self.total_p))
-            data[0, :] = self.x
-            data[1, :] = self.y
-            data[2, :] = 3.0
-            data[3, :] = self.s
+            # For FuncAnimation's sake, we need to return the artist we'll be using
+            # Note that it expects a sequence of artists, thus the trailing comma.
+            self.ims.append([self.scat, self.plot1, self.plot2])
             if self.stop:
-                sys.exit()
-            else:
-                yield data
-
-
-    def update(self, i):
-        """Update the scatter plot."""
-        data = next(self.stream)
-
-        # Set x and y data...
-        self.scat.set_offsets(data[:2, :].T)
-        # Set sizes...
-        self.scat._sizes = data[2]
-        # Set colors..
-        self.scat.set_array(data[3])
-        if i >= self.steps-2 or self.stop:
-            self.ani.event_source.stop()
-
-        # We need to return the updated artist for FuncAnimation to draw..
-        # Note that it expects a sequence of artists, thus the trailing comma.
-        return self.scat,
+                break
+        self.ani = anime.ArtistAnimation(self.fig, self.ims, interval=200, blit=True)
 
     def show(self):
+        self.get_anime()
         plt.show()
 
     def to_pos_array(self):
@@ -148,14 +125,16 @@ class Grid(object):
         print("Now on step {}/{} ...".format(step+1, self.steps))
         print("there are {} healthy people".format(counts[0]))
         print("there are {} sick people".format(counts[1]))
+        self.sick_count.append(counts[1])
         if counts[1] == 0:
             self.stop = True
             print("No sick people left, program should exit now ...")
         print("there are {} recovered people".format(counts[2]))
         print("there are {} died people".format(counts[3]))
+        self.dead_count.append(counts[3])
         print("="*60)
 
-grid = Grid(100, [1800, 100, 1, 1])
+grid = Grid(100, [1800, 5, 1, 1])
 # grid.run(100)
 grid.show()
 

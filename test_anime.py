@@ -9,20 +9,23 @@ class AnimatedScatter(object):
         self.stream = self.data_stream()
 
         # Setup the figure and axes...
-        self.fig, self.ax = plt.subplots()
+        self.fig, (self.ax, self.ax2) = plt.subplots(1, 2)
         # Then setup FuncAnimation.
-        self.ani = animation.FuncAnimation(self.fig, self.update, interval=5, 
+        self.ani = animation.FuncAnimation(self.fig, self.update, interval=42, 
                                            init_func=self.setup_plot, blit=True)
 
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
         x, y, s, c = next(self.stream)
         self.scat = self.ax.scatter(x, y, c=c, s=s, animated=True)
+        self.plot, = self.ax2.plot(x)
+        # self.plot = self.ax2.plot(y)
+        print(type(self.scat))
         self.ax.axis([-10, 10, -10, 10])
 
         # For FuncAnimation's sake, we need to return the artist we'll be using
         # Note that it expects a sequence of artists, thus the trailing comma.
-        return self.scat,
+        return [self.scat, self.plot],
 
     def data_stream(self):
         """Generate a random walk (brownian motion). Data is scaled to produce
@@ -34,8 +37,8 @@ class AnimatedScatter(object):
         xy *= 10
         while True:
             xy += 0.03 * (np.random.random((2, self.numpoints)) - 0.5)
-            s += 0.05 * (np.random.random(self.numpoints) - 0.5)
-            c += 0.02 * (np.random.random(self.numpoints) - 0.5)
+            # s += 0.05 * (np.random.random(self.numpoints) - 0.5)
+            c += 0.05 * (np.random.random(self.numpoints) - 0.5)
             yield data
 
     def update(self, i):
@@ -48,10 +51,11 @@ class AnimatedScatter(object):
         self.scat._sizes = 300 * abs(data[2])**1.5 + 100
         # Set colors..
         self.scat.set_array(data[3])
+        self.plot.set_data(data[:1, :].T)
 
         # We need to return the updated artist for FuncAnimation to draw..
         # Note that it expects a sequence of artists, thus the trailing comma.
-        return self.scat,
+        return [self.scat, self.plot],
 
     def show(self):
         plt.show()
