@@ -8,7 +8,7 @@ class People(object):
                  days_rec=30, days_sick=0,
                  rate_g=1.0,
                  rate_d=0.02,
-                 rate_s=0.5, 
+                 rate_s=0.0, 
                  sick_near_by=False):
         """
         :param pid: int, id of people

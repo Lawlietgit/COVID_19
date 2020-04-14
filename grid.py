@@ -65,7 +65,6 @@ class Grid(object):
     def update(self, i):
         """Update the scatter plot."""
         data = next(self.stream)
-
         # Set x and y data...
         self.scat.set_offsets(data[:2, :].T)
         # Set sizes...
